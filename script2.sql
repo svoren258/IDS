@@ -12,7 +12,7 @@ CREATE TABLE players (
     id_player integer UNIQUE,
     nickname varchar(50) NOT NULL,
     age integer,
-    personal_id integer CHECK (personal_id > 1000000000 AND personal_id < 9999999999)
+    personal_id integer CHECK (personal_id between 1000000000 and  9999999999),
     PRIMARY KEY(nickname)
 );
 
