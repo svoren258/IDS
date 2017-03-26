@@ -33,8 +33,6 @@ CREATE TABLE equipment (
     quantity integer NOT NULL,
     origin varchar(20) NOT NULL,
     eq_type varchar(30) NOT NULL,
-    owner_name varchar(20) NOT NULL,
-    FOREIGN KEY(owner_name) REFERENCES heroes(hero_name),
     PRIMARY KEY(id_equipment)
 );
 
@@ -96,9 +94,9 @@ INSERT INTO heroes VALUES(0002, 'warrior', 'hobbit', 1, 1, 'Sauron', 'Ondrej');
 INSERT INTO heroes VALUES(0003, 'mage', 'hobbit', 0, 1, 'Saruman', 'Ondrej');
 INSERT INTO heroes VALUES(0004, 'rogue', 'hobbit', 1, 1, 'Chicho', 'Ondrej');
 
-INSERT INTO equipment VALUES(0001, 'Enormously huge axe of eternal pain', 1, 'Raid', 'helmet', 'Sauron');
-INSERT INTO equipment VALUES(0002, 'Sneaky Little Dagger', 1, 'Adventure', 'dagger', 'Chicho');
-INSERT INTO equipment VALUES(0003, 'One Ring', 1, 'Market', 'ring', 'Saruman');
+INSERT INTO equipment VALUES(0001, 'Enormously huge axe of eternal pain', 1, 'Raid', 'helmet');
+INSERT INTO equipment VALUES(0002, 'Sneaky Little Dagger', 1, 'Adventure', 'dagger');
+INSERT INTO equipment VALUES(0003, 'One Ring', 1, 'Market', 'ring');
 
 INSERT INTO game VALUES(0001, 'crusade', 'hard', 'Destroy the One Ring', 'Mordor', NULL, 'Seki');
 INSERT INTO game VALUES(0002, 'adveture', 'medium', 'Steal the treasure from the forgotten mine', NULL, 'The middle earth', 'Ondrej');
