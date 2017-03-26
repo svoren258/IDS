@@ -12,6 +12,7 @@ CREATE TABLE players (
     id_player integer UNIQUE,
     nickname varchar(50) NOT NULL,
     age integer,
+    personal_id integer CHECK (personal_id > 1000000000 AND personal_id < 9999999999)
     PRIMARY KEY(nickname)
 );
 
@@ -86,17 +87,18 @@ CREATE TABLE hero_equipment (
 );
 
 
-INSERT INTO players VALUES(0001, 'Seki', 22);
-INSERT INTO players VALUES(0002, 'Ondrej', 21);
+INSERT INTO players VALUES(0001, 'Seki', 22, 9408094738);
+INSERT INTO players VALUES(0002, 'Ondrej', 21, 1349408094);
     
 INSERT INTO heroes VALUES(0001, 'rogue', 'hobbit', 1, 1, 'Bilbo', 'Seki');
 INSERT INTO heroes VALUES(0002, 'warrior', 'hobbit', 1, 1, 'Sauron', 'Ondrej');
 INSERT INTO heroes VALUES(0003, 'mage', 'hobbit', 0, 1, 'Saruman', 'Ondrej');
 INSERT INTO heroes VALUES(0004, 'rogue', 'hobbit', 1, 1, 'Chicho', 'Ondrej');
 
-INSERT INTO equipment VALUES(0001, 'Enormously huge axe of eternal pain', 1, 'Raid', 'helmet');
-INSERT INTO equipment VALUES(0002, 'Sneaky Little Dagger', 1, 'Adventure', 'dagger');
+INSERT INTO equipment VALUES(0001, 'Enormously huge axe of eternal pain', 1, 'Crusade', 'weapon');
+INSERT INTO equipment VALUES(0002, 'Sneaky Little Dagger', 1, 'Adventure', 'weapon');
 INSERT INTO equipment VALUES(0003, 'One Ring', 1, 'Market', 'ring');
+INSERT INTO equipment VALUES(0004, 'Sneaky Little Dagger', 1, 'Crusade', 'weapon');
 
 INSERT INTO game VALUES(0001, 'crusade', 'hard', 'Destroy the One Ring', 'Mordor', NULL, 'Seki');
 INSERT INTO game VALUES(0002, 'adveture', 'medium', 'Steal the treasure from the forgotten mine', NULL, 'The middle earth', 'Ondrej');
@@ -118,4 +120,5 @@ INSERT INTO meeting_game VALUES(0002, 0002, 0002);
 
 INSERT INTO hero_equipment VALUES(0001, 3, 'Chicho', 0001);
 INSERT INTO hero_equipment VALUES(0002, 2, 'Saruman', 0002);
-INSERT INTO hero_equipment VALUES(0003, 1, 'Sauron', 0003);
+INSERT INTO hero_equipment VALUES(0003, 2, 'Saruman', 0004);
+INSERT INTO hero_equipment VALUES(0004, 1, 'Sauron', 0003);
