@@ -42,7 +42,7 @@ CREATE TABLE game (
     game_type varchar(20),
     difficulty varchar(20),
     mission varchar(255),
-    location varchar(255),
+    game_location varchar(255),
     continent varchar(255),
     author_name varchar(50),
     FOREIGN KEY (author_name) REFERENCES players(nickname),
@@ -54,35 +54,34 @@ CREATE TABLE meeting (
     place varchar(255),
     id_game integer,
     FOREIGN KEY(id_game) REFERENCES game(id_game),
-    FOREIGN KEY(author_name) REFERENCES players(nickname),
     PRIMARY KEY(id_meeting)
 );
 
 CREATE TABLE hero_game (
-	id integer,
+	id_hg integer,
 	hero_name varchar(20) REFERENCES heroes(hero_name),
 	id_game integer REFERENCES game(id_game),
-	PRIMARY KEY(id)
+	PRIMARY KEY(id_hg)
 );
 
 CREATE TABLE player_on_meeting (
-	id integer,
+	id_pm integer,
 	nickname varchar(50) REFERENCES players(nickname),
 	id_meeting integer REFERENCES meeting(id_meeting),
-	PRIMARY KEY(id)
+	PRIMARY KEY(id_pm)
 );
 
 CREATE TABLE meeting_game (
-	id integer,
+	id_mg integer,
 	id_meeting integer REFERENCES meeting(id_meeting),
 	id_game integer REFERENCES game(id_game),
-	PRIMARY KEY (id)
+	PRIMARY KEY (id_mg)
 );
 
 CREATE TABLE hero_equipment (
-	id integer,
+	id_he integer,
 	quantity integer,
 	hero_name varchar(20) REFERENCES heroes(hero_name),
 	id_equipment integer REFERENCES equipment(id_equipment),
-	PRIMARY KEY (id)
+	PRIMARY KEY (id_he)
 );
