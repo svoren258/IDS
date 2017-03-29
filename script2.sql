@@ -12,7 +12,7 @@ CREATE TABLE players (
     id_player integer UNIQUE,
     nickname varchar(50) NOT NULL,
     age integer,
-    personal_id integer CHECK (personal_id between 1000000000 and  9999999999),
+    personal_id integer CHECK (personal_id between 1000000000 and  9999999999) UNIQUE,
     PRIMARY KEY(nickname)
 );
 
@@ -120,5 +120,37 @@ INSERT INTO meeting_game VALUES(0002, 0002, 0002);
 
 INSERT INTO hero_equipment VALUES(0001, 3, 'Chicho', 0001);
 INSERT INTO hero_equipment VALUES(0002, 2, 'Saruman', 0002);
-INSERT INTO hero_equipment VALUES(0003, 2, 'Saruman', 0004);
+INSERT INTO hero_equipment VALUES(0003, 2, 'Bilbo', 0004);
 INSERT INTO hero_equipment VALUES(0004, 1, 'Sauron', 0003);
+
+SELECT nickname FROM players;
+
+--SELECT mission,difficulty FROM game GROUP BY mission;
+
+SELECT * FROM game WHERE EXISTS(SELECT difficulty FROM game WHERE game.difficulty = 'hard' OR game.diffictuly = 'medium')
+
+--show all charracters for all players
+SELECT players.nickname, heroes.hero_name
+FROM heroes
+INNER JOIN players ON players.nickname=heroes.player_nickname; 
+
+
+
+--show player nicknames and game mission they took part in, as well as its location
+SELECT players.nickname, game.mission, game.game_location, game.continent
+FROM players
+INNER JOIN game ON players.nickname=game.author_name; 
+
+
+
+--show heroes with their equipments and quantities
+SELECT heroes.hero_name, equipment.eq_name, hero_equipment.quantity
+FROM equipment
+LEFT OUTER JOIN hero_equipment
+ON equipment.ID_EQUIPMENT=hero_equipment.id_equipment
+LEFT OUTER JOIN  heroes
+ON heroes.hero_name=hero_equipment.hero_name
+
+
+
+
