@@ -94,22 +94,27 @@ INSERT INTO heroes VALUES(0001, 'rogue', 'hobbit', 1, 1, 'Bilbo', 'Seki');
 INSERT INTO heroes VALUES(0002, 'warrior', 'hobbit', 1, 1, 'Sauron', 'Ondrej');
 INSERT INTO heroes VALUES(0003, 'mage', 'hobbit', 0, 1, 'Saruman', 'Ondrej');
 INSERT INTO heroes VALUES(0004, 'rogue', 'hobbit', 1, 1, 'Chicho', 'Ondrej');
+INSERT INTO heroes VALUES(0005, 'rogue', 'hobbit', 1, 1, 'Sam', 'Seki');
 
 INSERT INTO equipment VALUES(0001, 'Enormously huge axe of eternal pain', 1, 'Crusade', 'weapon');
 INSERT INTO equipment VALUES(0002, 'Sneaky Little Dagger', 1, 'Adventure', 'weapon');
 INSERT INTO equipment VALUES(0003, 'One Ring', 1, 'Market', 'ring');
 INSERT INTO equipment VALUES(0004, 'Sneaky Little Dagger', 1, 'Crusade', 'weapon');
 
+
 INSERT INTO game VALUES(0001, 'crusade', 'hard', 'Destroy the One Ring', 'Mordor', NULL, 'Seki');
-INSERT INTO game VALUES(0002, 'adveture', 'medium', 'Steal the treasure from the forgotten mine', NULL, 'The middle earth', 'Ondrej');
+INSERT INTO game VALUES(0002, 'adventure', 'medium', 'Steal the treasure from the forgotten mine', NULL, 'The middle earth', 'Ondrej');
+INSERT INTO game VALUES(0003, 'adventure', 'easy', 'Propose a dance to Rose', 'Shire', NULL, 'Seki');
 
 INSERT INTO meeting VALUES(0001, 'D105', 0001);
 INSERT INTO meeting VALUES(0002, 'Herna 3', 0002);
+INSERT INTO meeting VALUES(0003, 'Divci hrad', 0003);
 
 INSERT INTO hero_game VALUES(0001, 'Chicho', 0001);
 INSERT INTO hero_game VALUES(0002, 'Sauron', 0001);
 INSERT INTO hero_game VALUES(0003, 'Saruman', 0002);
 INSERT INTO hero_game VALUES(0004, 'Sauron', 0002);
+INSERT INTO hero_game VALUES(0005, 'Sam', 0003);
 
 INSERT INTO player_on_meeting VALUES(0001, 'Seki', 0001);
 INSERT INTO player_on_meeting VALUES(0002, 'Ondrej', 0001);
@@ -123,11 +128,26 @@ INSERT INTO hero_equipment VALUES(0002, 2, 'Saruman', 0002);
 INSERT INTO hero_equipment VALUES(0003, 2, 'Bilbo', 0004);
 INSERT INTO hero_equipment VALUES(0004, 1, 'Sauron', 0003);
 
+--find all users
 SELECT nickname FROM players;
 
---SELECT mission,difficulty FROM game GROUP BY mission;
+--select all heroes that went either to shire or mordor
+SELECT heroes.hero_name, game.game_location, game.continent 
+FROM heroes
+WHERE game.game_location IN(SELECT game.game_location FROM game WHERE game.game_location='Shire')
+LEFT JOIN hero_game 
+ON heroes.hero_name=hero_game.hero_name
+LEFT JOIN game
+ON game.id_game=hero_game.id_game;
 
-SELECT * FROM game WHERE EXISTS(SELECT difficulty FROM game WHERE game.difficulty = 'hard' OR game.diffictuly = 'medium')
+
+
+
+--count equipments by number of holders basically
+SELECT eq_name,count(eq_name)  FROM equipment GROUP BY eq_name;
+
+--show all games info if som medium/hard games exist
+SELECT * FROM game WHERE EXISTS(SELECT difficulty FROM game WHERE game.difficulty = 'hard' OR game.difficulty = 'medium');
 
 --show all charracters for all players
 SELECT players.nickname, heroes.hero_name
@@ -149,8 +169,7 @@ FROM equipment
 LEFT OUTER JOIN hero_equipment
 ON equipment.ID_EQUIPMENT=hero_equipment.id_equipment
 LEFT OUTER JOIN  heroes
-ON heroes.hero_name=hero_equipment.hero_name
-
+ON heroes.hero_name=hero_equipment.hero_name;
 
 
 
