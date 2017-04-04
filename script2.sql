@@ -147,10 +147,11 @@ INNER JOIN game ON players.nickname=game.author_name;
 --show heroes with their equipments and quantities
 SELECT heroes.hero_name, equipment.eq_name, hero_equipment.quantity
 FROM equipment
-LEFT OUTER JOIN hero_equipment
+INNER JOIN hero_equipment
 ON equipment.ID_EQUIPMENT=hero_equipment.id_equipment
-LEFT OUTER JOIN  heroes
+INNER JOIN  heroes
 ON heroes.hero_name=hero_equipment.hero_name;
+
 
 ------------------------------------------------------
 --2x group by
