@@ -114,7 +114,7 @@ INSERT INTO hero_game VALUES(0001, 'Chicho', 0001);
 INSERT INTO hero_game VALUES(0002, 'Sauron', 0001);
 INSERT INTO hero_game VALUES(0003, 'Saruman', 0002);
 INSERT INTO hero_game VALUES(0004, 'Sauron', 0002);
-INSERT INTO hero_game VALUES(0005, 'Sam', 0003);
+INSERT INTO hero_game VALUES(0005, 'Gimli', 0003);
 
 INSERT INTO player_on_meeting VALUES(0001, 'Seki', 0001);
 INSERT INTO player_on_meeting VALUES(0002, 'Ondrej', 0001);
