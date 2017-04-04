@@ -91,10 +91,10 @@ INSERT INTO players VALUES(0001, 'Seki', 22, 9408094738);
 INSERT INTO players VALUES(0002, 'Ondrej', 21, 1349408094);
     
 INSERT INTO heroes VALUES(0001, 'rogue', 'hobbit', 1, 1, 'Bilbo', 'Seki');
-INSERT INTO heroes VALUES(0002, 'warrior', 'hobbit', 1, 1, 'Sauron', 'Ondrej');
-INSERT INTO heroes VALUES(0003, 'mage', 'hobbit', 0, 1, 'Saruman', 'Ondrej');
+INSERT INTO heroes VALUES(0002, 'warrior', 'human', 1, 1, 'Sauron', 'Ondrej');
+INSERT INTO heroes VALUES(0003, 'mage', 'human', 0, 1, 'Saruman', 'Ondrej');
 INSERT INTO heroes VALUES(0004, 'rogue', 'hobbit', 1, 1, 'Chicho', 'Ondrej');
-INSERT INTO heroes VALUES(0005, 'rogue', 'hobbit', 1, 1, 'Sam', 'Seki');
+INSERT INTO heroes VALUES(0005, 'warrior', 'dwarf', 1, 1, 'Gimli', 'Seki');
 
 INSERT INTO equipment VALUES(0001, 'Enormously huge axe of eternal pain', 1, 'Crusade', 'weapon');
 INSERT INTO equipment VALUES(0002, 'Sneaky Little Dagger', 1, 'Adventure', 'weapon');
@@ -127,10 +127,46 @@ INSERT INTO hero_equipment VALUES(0001, 3, 'Chicho', 0001);
 INSERT INTO hero_equipment VALUES(0002, 2, 'Saruman', 0002);
 INSERT INTO hero_equipment VALUES(0003, 2, 'Bilbo', 0004);
 INSERT INTO hero_equipment VALUES(0004, 1, 'Sauron', 0003);
+---------------------END OF PART 2-----------------------
 
---find all users
-SELECT nickname FROM players;
 
+---------------------PART 3------------------------------
+--2x 2 tables
+--show all charracters for all players
+SELECT players.nickname, heroes.hero_name
+FROM heroes
+INNER JOIN players ON players.nickname=heroes.player_nickname; 
+
+--show player nicknames and game mission they took part in, as well as its location
+SELECT players.nickname, game.mission, game.game_location, game.continent
+FROM players
+INNER JOIN game ON players.nickname=game.author_name; 
+
+------------------------------------------------------
+--1x 3 tables
+--show heroes with their equipments and quantities
+SELECT heroes.hero_name, equipment.eq_name, hero_equipment.quantity
+FROM equipment
+LEFT OUTER JOIN hero_equipment
+ON equipment.ID_EQUIPMENT=hero_equipment.id_equipment
+LEFT OUTER JOIN  heroes
+ON heroes.hero_name=hero_equipment.hero_name;
+
+------------------------------------------------------
+--2x group by
+--count equipments by number of holders basically
+SELECT eq_name,count(eq_name)  FROM equipment GROUP BY eq_name;
+
+--count number of races of heores
+SELECT  race, count(race)  FROM heroes GROUP BY race;
+
+------------------------------------------------------
+--1x exists
+--show all games info if som medium/hard games exist
+SELECT * FROM game WHERE EXISTS(SELECT difficulty FROM game WHERE game.difficulty = 'hard' OR game.difficulty = 'medium');
+
+------------------------------------------------------
+--1x WHERE IN
 --where IN
 SELECT hero_name FROM heroes
 WHERE player_nickname IN
@@ -139,33 +175,10 @@ WHERE player_nickname IN
 
 
 
---count equipments by number of holders basically
-SELECT eq_name,count(eq_name)  FROM equipment GROUP BY eq_name;
-
---show all games info if som medium/hard games exist
-SELECT * FROM game WHERE EXISTS(SELECT difficulty FROM game WHERE game.difficulty = 'hard' OR game.difficulty = 'medium');
-
---show all charracters for all players
-SELECT players.nickname, heroes.hero_name
-FROM heroes
-INNER JOIN players ON players.nickname=heroes.player_nickname; 
 
 
 
---show player nicknames and game mission they took part in, as well as its location
-SELECT players.nickname, game.mission, game.game_location, game.continent
-FROM players
-INNER JOIN game ON players.nickname=game.author_name; 
 
-
-
---show heroes with their equipments and quantities
-SELECT heroes.hero_name, equipment.eq_name, hero_equipment.quantity
-FROM equipment
-LEFT OUTER JOIN hero_equipment
-ON equipment.ID_EQUIPMENT=hero_equipment.id_equipment
-LEFT OUTER JOIN  heroes
-ON heroes.hero_name=hero_equipment.hero_name;
 
 
 
