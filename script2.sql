@@ -154,7 +154,8 @@ ON heroes.hero_name=hero_equipment.hero_name;
 
 ------------------------------------------------------
 --2x group by
---count equipments by number of holders basically
+
+--count how many different heroes own certain weapon
 SELECT eq_name,count(eq_name)  FROM equipment GROUP BY eq_name;
 
 --count number of races of heores
