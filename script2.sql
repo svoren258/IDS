@@ -134,11 +134,12 @@ SELECT nickname FROM players;
 --select all heroes that went either to shire or mordor
 SELECT heroes.hero_name, game.game_location, game.continent 
 FROM heroes
-WHERE game.game_location IN(SELECT game.game_location FROM game WHERE game.game_location='Shire')
+
 LEFT JOIN hero_game 
 ON heroes.hero_name=hero_game.hero_name
 LEFT JOIN game
-ON game.id_game=hero_game.id_game;
+ON game.id_game=hero_game.id_game
+WHERE game.game_location IN(SELECT game.game_location FROM game WHERE game.game_location='Shire');
 
 
 
