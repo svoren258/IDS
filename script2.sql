@@ -173,4 +173,3 @@ SELECT * FROM game WHERE EXISTS(SELECT difficulty FROM game WHERE game.difficult
 SELECT hero_name FROM heroes
 WHERE player_nickname IN
 (SELECT nickname FROM players WHERE  nickname LIKE '%ek%');
-
