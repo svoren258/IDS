@@ -89,7 +89,6 @@ CREATE TABLE hero_equipment (
 
 INSERT INTO players VALUES(0001, 'Seki', 22, 9408094738);
 INSERT INTO players VALUES(0002, 'Ondrej', 21, 1349408094);
-INSERT INTO players VALUES(0003, 'Andrej', 21, 9349408095);
     
 INSERT INTO heroes VALUES(0001, 'rogue', 'hobbit', 1, 1, 'Bilbo', 'Seki');
 INSERT INTO heroes VALUES(0002, 'warrior', 'human', 1, 1, 'Sauron', 'Ondrej');
@@ -134,30 +133,22 @@ INSERT INTO hero_equipment VALUES(0004, 1, 'Sauron', 0003);
 --PART 4--
 --DROP INDEX idx;
 
-EXPLAIN PLAN FOR
-SELECT players.age, avg(players.personal_id)
-FROM players
-NATURAL JOIN heroes
-WHERE players.nickname LIKE '%dre%'
-GROUP BY (players.age);
-SELECT * FROM TABLE(DBMS_XPLAN.display);
-
-CREATE INDEX idx ON players(age,personal_id);
 
 EXPLAIN PLAN FOR
-SELECT players.age, avg(players.personal_id)
+SELECT players.nickname, heroes.race, count(heroes.race)
 FROM players
 NATURAL JOIN heroes
-WHERE players.nickname LIKE '%dre%' AND players.age = '21'
-GROUP BY (players.age);
+WHERE players.nickname LIKE '%dre%' AND players.nickname = heroes.player_nickname
+GROUP BY (heroes.race, players.nickname);
 SELECT * FROM TABLE(DBMS_XPLAN.display);
 
+CREATE INDEX idx1 ON heroes(race, player_nickname);
 
-
-SELECT * FROM players;
-
-
-
-
-
+EXPLAIN PLAN FOR
+SELECT players.nickname, heroes.race, count(heroes.race)
+FROM players
+NATURAL JOIN heroes
+WHERE players.nickname LIKE '%dre%' AND players.nickname = heroes.player_nickname
+GROUP BY (heroes.race, players.nickname);
+SELECT * FROM TABLE(DBMS_XPLAN.display);
 
