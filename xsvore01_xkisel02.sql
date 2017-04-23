@@ -7,6 +7,7 @@ DROP TABLE hero_game CASCADE CONSTRAINTS;
 DROP TABLE player_on_meeting CASCADE CONSTRAINTS;
 DROP TABLE meeting_game CASCADE CONSTRAINTS;
 DROP TABLE hero_equipment CASCADE CONSTRAINTS;
+DROP SEQUENCE lastID;
 
 CREATE TABLE players (
     id_player integer UNIQUE,
@@ -173,3 +174,47 @@ SELECT * FROM game WHERE EXISTS(SELECT difficulty FROM game WHERE game.difficult
 SELECT hero_name FROM heroes
 WHERE player_nickname IN
 (SELECT nickname FROM players WHERE  nickname LIKE '%ek%');
+
+---------------------END OF PART 3-----------------------
+
+
+
+---------------------PART 4------------------------------
+CREATE SEQUENCE lastID;
+CREATE OR REPLACE TRIGGER incrTrigger
+  BEFORE INSERT ON players
+  FOR EACH ROW
+BEGIN
+  :new.id_player := lastID.nextval;
+END incrTrigger;
+/
+show errors
+ALTER session SET nls_date_format='dd.mm.yyyy';
+
+SELECT last_number
+FROM user_sequences
+WHERE sequence_name = 'LASTID';
+
+SELECT * FROM players
+
+DELETE FROM players WHERE nickname='Peto';
+
+select * from user_errors where type = 'TRIGGER'
+ 
+CREATE OR REPLACE TRIGGER deleteHeroRelations
+  BEFORE DELETE ON heroes
+  FOR EACH ROW
+BEGIN
+  DELETE FROM hero_equipment WHERE hero_name= :old.hero_name;
+END;
+/
+show errors
+ALTER session SET nls_date_format='dd.mm.yyyy';
+
+DELETE FROM heroes
+WHERE hero_name='Bilbo';
+
+SELECT * FROM heroes
+
+SELECT * FROM hero_equipment
+  

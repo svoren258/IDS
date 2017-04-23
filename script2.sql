@@ -1,4 +1,4 @@
-DROP TABLE players CASCADE CONSTRAINTS ;
+ DROP TABLE players CASCADE CONSTRAINTS ;
 DROP TABLE heroes  CASCADE CONSTRAINTS;
 DROP TABLE equipment  CASCADE CONSTRAINTS;
 DROP TABLE meeting  CASCADE CONSTRAINTS;
@@ -12,7 +12,7 @@ CREATE TABLE players (
     id_player integer UNIQUE,
     nickname varchar(50) NOT NULL,
     age integer,
-    personal_id integer CHECK (personal_id between 1000000000 and  9999999999) UNIQUE,
+    personal_id integer CHECK (personal_id between 1000000000 and 9999999999) UNIQUE,
     PRIMARY KEY(nickname)
 );
 

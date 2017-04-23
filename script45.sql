@@ -7,6 +7,8 @@ DROP TABLE hero_game CASCADE CONSTRAINTS;
 DROP TABLE player_on_meeting CASCADE CONSTRAINTS;
 DROP TABLE meeting_game CASCADE CONSTRAINTS;
 DROP TABLE hero_equipment CASCADE CONSTRAINTS;
+DROP SEQUENCE lastID;
+
 
 CREATE TABLE players (
     id_player integer UNIQUE,
@@ -86,6 +88,26 @@ CREATE TABLE hero_equipment (
 	PRIMARY KEY (id_he)
 );
 
+CREATE SEQUENCE lastID;
+CREATE OR REPLACE TRIGGER incrTrigger
+  BEFORE INSERT ON players
+  FOR EACH ROW
+BEGIN
+  :new.id_player := lastID.nextval;
+END incrTrigger;
+/
+show errors
+ALTER session SET nls_date_format='dd.mm.yyyy';
+
+CREATE OR REPLACE TRIGGER deleteHeroRelations
+  BEFORE DELETE ON heroes
+  FOR EACH ROW
+BEGIN
+  DELETE FROM hero_equipment WHERE hero_name= :old.hero_name;
+END;
+/
+show errors
+ALTER session SET nls_date_format='dd.mm.yyyy';
 
 INSERT INTO players VALUES(0001, 'Seki', 22, 9408094738);
 INSERT INTO players VALUES(0002, 'Ondrej', 21, 1349408094);
