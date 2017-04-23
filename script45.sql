@@ -221,9 +221,74 @@ CREATE MATERIALIZED VIEW Hheroes AS
    
 GRANT ALL ON Hheroes TO xkisel02;
 
+
 SELECT * FROM Hheroes;
 
 DELETE FROM Hheroes WHERE hero_name='Gimli';
 
 SELECT * FROM Hheroes;
 
+--server output on
+set serveroutput on
+------------------------
+--PROCEDURE FINDS PERCENTAGE OF HERO RACES GIVEN IN THE ARG FROM TOTAL
+------------------------
+CREATE OR REPLACE PROCEDURE racePercent(race IN VARCHAR2) AS
+  CURSOR emp_cursor IS SELECT * FROM heroes;
+  e_c heroes%ROWTYPE;
+  allraces NUMBER;
+  thisrace NUMBER;
+  BEGIN
+    allraces := 0;
+    thisrace := 0;
+   OPEN emp_cursor;
+      loop
+        fetch emp_cursor into e_c;
+          allraces := allraces + 1;
+          exit when emp_cursor%NOTFOUND;
+          if (e_c.race = race) then thisrace := thisrace + 1;
+          end if;
+      end loop;
+      DBMS_OUTPUT.PUT_LINE(thisrace / allraces * 100||'%');
+    CLOSE emp_cursor;
+    
+    EXCEPTION
+  WHEN ZERO_DIVIDE THEN --ak ziadne rasy neboli vytvorene
+    dbms_output.put_line('Ziadne rasy neexistuju');
+  WHEN OTHERS THEN --ina vynimka
+Raise_Application_Error (-555, 'Else exception!');
+    
+ END racePercent;
+/
+-----------------------
+---PROCEDURE WHICH FINDS IF A HERO IS TOTAL NOOB
+------------------------
+CREATE OR REPLACE PROCEDURE absolutelyNew(hname IN VARCHAR2) AS
+  CURSOR h_cursor IS SELECT * FROM heroes
+  NATURAL JOIN hero_equipment
+  NATURAL JOIN equipment;
+  e_c h_cursor%ROWTYPE;
+  hlevel NUMBER;
+  heqs NUMBER;
+  BEGIN
+    heqs := 0;
+    hlevel := 0;
+   OPEN h_cursor;
+      loop
+        fetch h_cursor into e_c;
+          exit when h_cursor%NOTFOUND;
+          heqs := heqs + 1;
+      end loop;
+      if(hlevel = 0 AND heqs = 0) then 
+      DBMS_OUTPUT.PUT_LINE('the hero is total noob');
+      else
+            DBMS_OUTPUT.PUT_LINE('the hero is level '||hlevel||' and has '|| heqs||' equipments');
+end if;
+    CLOSE h_cursor;
+    
+ END absolutelyNew;
+/
+
+
+exec racePercent('hobbit');
+exec absolutelyNew('Bilbo');
