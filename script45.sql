@@ -88,6 +88,11 @@ CREATE TABLE hero_equipment (
 	PRIMARY KEY (id_he)
 );
 
+--------database triggers implementation and examples of using---------
+
+----trigger for automatical generating of primary key using sequence
+----if new player is inserted, sequence variable is incremented and
+----it's value is going to be value of the new player's primary key
 CREATE SEQUENCE lastID;
 CREATE OR REPLACE TRIGGER incrTrigger
   BEFORE INSERT ON players
@@ -99,6 +104,14 @@ END incrTrigger;
 show errors
 ALTER session SET nls_date_format='dd.mm.yyyy';
 
+INSERT INTO players VALUES(NULL, 'Miro', 22, 9401234438);
+INSERT INTO players VALUES(NULL, 'Peto', 22, 9432423567);
+
+SELECT * FROM players
+
+----trigger for deleting of killed hero's relations
+----if hero is deleted, he is not able to own any equipment etc.
+----in this case are deleted all his relations with another tables
 CREATE OR REPLACE TRIGGER deleteHeroRelations
   BEFORE DELETE ON heroes
   FOR EACH ROW
@@ -109,6 +122,15 @@ END;
 show errors
 ALTER session SET nls_date_format='dd.mm.yyyy';
 
+SELECT * FROM heroes
+SELECT * FROM hero_equipment
+
+DELETE FROM heroes WHERE hero_name='Bilbo';
+
+SELECT * FROM heroes
+SELECT * FROM hero_equipment
+
+------------------------------------------
 INSERT INTO players VALUES(0001, 'Seki', 22, 9408094738);
 INSERT INTO players VALUES(0002, 'Ondrej', 21, 1349408094);
     
@@ -174,9 +196,7 @@ WHERE players.nickname LIKE '%dre%' AND players.nickname = heroes.player_nicknam
 GROUP BY (heroes.race, players.nickname);
 SELECT * FROM TABLE(DBMS_XPLAN.display);
 
-
-
-
+-------access rights definition-------
 GRANT ALL ON players TO xkisel02;
 GRANT ALL ON equipment TO xkisel02;
 GRANT ALL ON game TO xkisel02;
@@ -187,13 +207,23 @@ GRANT ALL ON heroes TO xkisel02;
 GRANT ALL ON meeting_game TO xkisel02;
 GRANT ALL ON player_on_meeting TO xkisel02;
 
+
+----------materialized view----------
 DROP VIEW Hheroes;
 
 CREATE MATERIALIZED VIEW Hheroes AS
-   SELECT h.*
-   FROM heroes h;
+  CACHE
+  BUILD IMMEDIATE
+  REFRESH FAST ON COMMIT
+  ENABLE QUERY REWRITE
+  SELECT h.*
+  FROM heroes h;
    
 GRANT ALL ON Hheroes TO xkisel02;
 
 SELECT * FROM Hheroes;
-   
+
+DELETE FROM Hheroes WHERE hero_name='Gimli';
+
+SELECT * FROM Hheroes;
+
