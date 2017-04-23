@@ -208,7 +208,7 @@ GRANT ALL ON meeting_game TO xkisel02;
 GRANT ALL ON player_on_meeting TO xkisel02;
 
 
-----------materialized view----------
+----------materialized view on the table "heroes"----------
 DROP VIEW Hheroes;
 
 CREATE MATERIALIZED VIEW Hheroes AS
