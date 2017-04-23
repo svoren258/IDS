@@ -174,3 +174,26 @@ WHERE players.nickname LIKE '%dre%' AND players.nickname = heroes.player_nicknam
 GROUP BY (heroes.race, players.nickname);
 SELECT * FROM TABLE(DBMS_XPLAN.display);
 
+
+
+
+GRANT ALL ON players TO xkisel02;
+GRANT ALL ON equipment TO xkisel02;
+GRANT ALL ON game TO xkisel02;
+GRANT ALL ON hero_equipment TO xkisel02;
+GRANT ALL ON hero_game TO xkisel02;
+GRANT ALL ON meeting TO xkisel02;
+GRANT ALL ON heroes TO xkisel02;
+GRANT ALL ON meeting_game TO xkisel02;
+GRANT ALL ON player_on_meeting TO xkisel02;
+
+DROP VIEW Hheroes;
+
+CREATE MATERIALIZED VIEW Hheroes AS
+   SELECT h.*
+   FROM heroes h;
+   
+GRANT ALL ON Hheroes TO xkisel02;
+
+SELECT * FROM Hheroes;
+   
