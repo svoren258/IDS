@@ -107,32 +107,11 @@ ALTER session SET nls_date_format='dd.mm.yyyy';
 INSERT INTO players VALUES(NULL, 'Miro', 22, 9401234438);
 INSERT INTO players VALUES(NULL, 'Peto', 22, 9432423567);
 
-SELECT * FROM players
-
-----trigger for deleting of killed hero's relations
-----if hero is deleted, he is not able to own any equipment etc.
-----in this case are deleted all his relations with another tables
-CREATE OR REPLACE TRIGGER deleteHeroRelations
-  BEFORE DELETE ON heroes
-  FOR EACH ROW
-BEGIN
-  DELETE FROM hero_equipment WHERE hero_name= :old.hero_name;
-END;
-/
-show errors
-ALTER session SET nls_date_format='dd.mm.yyyy';
-
-SELECT * FROM heroes
-SELECT * FROM hero_equipment
-
-DELETE FROM heroes WHERE hero_name='Bilbo';
-
-SELECT * FROM heroes
-SELECT * FROM hero_equipment
+SELECT * FROM players;
 
 ------------------------------------------
-INSERT INTO players VALUES(0001, 'Seki', 22, 9408094738);
-INSERT INTO players VALUES(0002, 'Ondrej', 21, 1349408094);
+INSERT INTO players VALUES(NULL, 'Seki', 22, 9408094738);
+INSERT INTO players VALUES(NULL, 'Ondrej', 21, 1349408094);
     
 INSERT INTO heroes VALUES(0001, 'rogue', 'hobbit', 1, 1, 'Bilbo', 'Seki');
 INSERT INTO heroes VALUES(0002, 'warrior', 'human', 1, 1, 'Sauron', 'Ondrej');
@@ -173,11 +152,29 @@ INSERT INTO hero_equipment VALUES(0003, 2, 'Bilbo', 0004);
 INSERT INTO hero_equipment VALUES(0004, 1, 'Sauron', 0003);
 ---------------------END OF PART 2-----------------------
 
+----trigger for deleting of killed hero's relations
+----if hero is deleted, he is not able to own any equipment etc.
+----in this case are deleted all his relations with another tables
+CREATE OR REPLACE TRIGGER deleteHeroRelations
+  BEFORE DELETE ON heroes
+  FOR EACH ROW
+BEGIN
+  DELETE FROM hero_equipment WHERE hero_name= :old.hero_name;
+END;
+/
+show errors
+ALTER session SET nls_date_format='dd.mm.yyyy';
+
+SELECT * FROM heroes;
+SELECT * FROM hero_equipment;
+
+DELETE FROM heroes WHERE hero_name='Bilbo';
+
+SELECT * FROM heroes;
+SELECT * FROM hero_equipment;
 
 --PART 4--
 --DROP INDEX idx;
-
-
 EXPLAIN PLAN FOR
 SELECT players.nickname, heroes.race, count(heroes.race)
 FROM players
@@ -195,38 +192,6 @@ NATURAL JOIN heroes
 WHERE players.nickname LIKE '%dre%' AND players.nickname = heroes.player_nickname
 GROUP BY (heroes.race, players.nickname);
 SELECT * FROM TABLE(DBMS_XPLAN.display);
-
--------access rights definition-------
-GRANT ALL ON players TO xkisel02;
-GRANT ALL ON equipment TO xkisel02;
-GRANT ALL ON game TO xkisel02;
-GRANT ALL ON hero_equipment TO xkisel02;
-GRANT ALL ON hero_game TO xkisel02;
-GRANT ALL ON meeting TO xkisel02;
-GRANT ALL ON heroes TO xkisel02;
-GRANT ALL ON meeting_game TO xkisel02;
-GRANT ALL ON player_on_meeting TO xkisel02;
-
-
-----------materialized view on the table "heroes"----------
-DROP VIEW Hheroes;
-
-CREATE MATERIALIZED VIEW Hheroes AS
-  CACHE
-  BUILD IMMEDIATE
-  REFRESH FAST ON COMMIT
-  ENABLE QUERY REWRITE
-  SELECT h.*
-  FROM heroes h;
-   
-GRANT ALL ON Hheroes TO xkisel02;
-
-
-SELECT * FROM Hheroes;
-
-DELETE FROM Hheroes WHERE hero_name='Gimli';
-
-SELECT * FROM Hheroes;
 
 --server output on
 set serveroutput on
@@ -292,3 +257,40 @@ end if;
 
 exec racePercent('hobbit');
 exec absolutelyNew('Bilbo');
+
+-------access rights definition-------
+GRANT ALL ON players TO xkisel02;
+GRANT ALL ON equipment TO xkisel02;
+GRANT ALL ON game TO xkisel02;
+GRANT ALL ON hero_equipment TO xkisel02;
+GRANT ALL ON hero_game TO xkisel02;
+GRANT ALL ON meeting TO xkisel02;
+GRANT ALL ON heroes TO xkisel02;
+GRANT ALL ON meeting_game TO xkisel02;
+GRANT ALL ON player_on_meeting TO xkisel02;
+
+GRANT EXECUTE ON racePercent TO xkisel02;
+GRANT EXECUTE ON absolutelyNew TO xkisel02;
+
+----------materialized view on the table "heroes"----------
+DROP MATERIALIZED VIEW Hheroes;
+
+CREATE MATERIALIZED VIEW LOG ON heroes WITH PRIMARY KEY;
+
+CREATE MATERIALIZED VIEW Hheroes
+  CACHE
+  BUILD IMMEDIATE
+  REFRESH FAST ON COMMIT
+  ENABLE QUERY REWRITE
+  AS SELECT h.*
+  FROM heroes h;
+   
+GRANT ALL ON Hheroes TO xkisel02;
+
+SELECT * FROM Hheroes;
+
+DELETE FROM Hheroes WHERE hero_name='Gimli';
+
+SELECT * FROM Hheroes;
+
+
