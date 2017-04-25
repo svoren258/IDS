@@ -214,14 +214,14 @@ CREATE OR REPLACE PROCEDURE racePercent(race IN VARCHAR2) AS
           if (e_c.race = race) then thisrace := thisrace + 1;
           end if;
       end loop;
-      DBMS_OUTPUT.PUT_LINE(thisrace / allraces * 100||'%');
+      DBMS_OUTPUT.PUT_LINE('Race '||race||' means '||thisrace / allraces * 100||'% of the whole population. There are/is '||thisrace||' of them.');
     CLOSE emp_cursor;
     
     EXCEPTION
   WHEN ZERO_DIVIDE THEN --ak ziadne rasy neboli vytvorene
     dbms_output.put_line('Ziadne rasy neexistuju');
   WHEN OTHERS THEN --ina vynimka
-Raise_Application_Error (-555, 'Else exception!');
+    Raise_Application_Error (20555, 'Else exception!');
     
  END racePercent;
 /
@@ -245,9 +245,9 @@ CREATE OR REPLACE PROCEDURE absolutelyNew(hname IN VARCHAR2) AS
           heqs := heqs + 1;
       end loop;
       if(hlevel = 0 AND heqs = 0) then 
-      DBMS_OUTPUT.PUT_LINE('the hero is total noob');
+        DBMS_OUTPUT.PUT_LINE('the hero is total noob');
       else
-            DBMS_OUTPUT.PUT_LINE('the hero is level '||hlevel||' and has '|| heqs||' equipments');
+        DBMS_OUTPUT.PUT_LINE('the hero is level '||hlevel||' and has '|| heqs||' equipments');
 end if;
     CLOSE h_cursor;
     
