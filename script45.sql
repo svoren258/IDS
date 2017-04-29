@@ -174,7 +174,7 @@ SELECT * FROM heroes;
 SELECT * FROM hero_equipment;
 
 --PART 4--
---DROP INDEX idx;
+--do a query which  will be compared, 
 EXPLAIN PLAN FOR
 SELECT players.nickname, heroes.race, count(heroes.race)
 FROM players
@@ -183,8 +183,10 @@ WHERE players.nickname LIKE '%dre%' AND players.nickname = heroes.player_nicknam
 GROUP BY (heroes.race, players.nickname);
 SELECT * FROM TABLE(DBMS_XPLAN.display);
 
+--create index on columns that matter
 CREATE INDEX idx1 ON heroes(race, player_nickname);
 
+--show results with indexed columns, to compare the results
 EXPLAIN PLAN FOR
 SELECT players.nickname, heroes.race, count(heroes.race)
 FROM players
@@ -226,29 +228,29 @@ CREATE OR REPLACE PROCEDURE racePercent(race IN VARCHAR2) AS
  END racePercent;
 /
 -----------------------
----PROCEDURE WHICH FINDS IF A HERO IS TOTAL NOOB
+---PROCEDURE WHICH FINDS IF A HERO IS A TOTAL BEGINNER
 ------------------------
-CREATE OR REPLACE PROCEDURE absolutelyNew(hname IN VARCHAR2) AS
+CREATE OR REPLACE PROCEDURE absolutelyNew AS
   CURSOR h_cursor IS SELECT * FROM heroes
   NATURAL JOIN hero_equipment
   NATURAL JOIN equipment;
   e_c h_cursor%ROWTYPE;
-  hlevel NUMBER;
-  heqs NUMBER;
+  hcount NUMBER;
   BEGIN
-    heqs := 0;
-    hlevel := 0;
+  hcount := 0;
    OPEN h_cursor;
       loop
         fetch h_cursor into e_c;
           exit when h_cursor%NOTFOUND;
-          heqs := heqs + 1;
+          hcount := hcount + 1;
+          if(e_c.levelnumber = 1) then 
+            DBMS_OUTPUT.PUT_LINE('the hero'|| e_c.hero_name||' is a beginner and needs help');
+          end if;
+
       end loop;
-      if(hlevel = 0 AND heqs = 0) then 
-        DBMS_OUTPUT.PUT_LINE('the hero is total noob');
-      else
-        DBMS_OUTPUT.PUT_LINE('the hero is level '||hlevel||' and has '|| heqs||' equipments');
-end if;
+      if(hcount = 0) then
+        DBMS_OUTPUT.PUT_LINE('there are no heroes at level 1');
+      end if;
     CLOSE h_cursor;
     
  END absolutelyNew;
@@ -256,7 +258,7 @@ end if;
 
 
 exec racePercent('hobbit');
-exec absolutelyNew('Bilbo');
+exec absolutelyNew;
 
 -------access rights definition-------
 GRANT ALL ON players TO xkisel02;
