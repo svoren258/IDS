@@ -9,6 +9,7 @@ DROP TABLE meeting_game CASCADE CONSTRAINTS;
 DROP TABLE hero_equipment CASCADE CONSTRAINTS;
 DROP SEQUENCE lastID;
 
+
 CREATE TABLE players (
     id_player integer UNIQUE,
     nickname varchar(50) NOT NULL,
@@ -18,7 +19,7 @@ CREATE TABLE players (
 );
 
 CREATE TABLE heroes (
-    id_hero integer UNIQUE,
+	id_hero integer UNIQUE,
     classname varchar(10) NOT NULL,
     race varchar(20) NOT NULL,
     alive integer NOT NULL,
@@ -59,37 +60,58 @@ CREATE TABLE meeting (
 );
 
 CREATE TABLE hero_game (
-    id_hg integer,
-    hero_name varchar(20) REFERENCES heroes(hero_name),
-    id_game integer REFERENCES game(id_game),
-    PRIMARY KEY(id_hg)
+	id_hg integer,
+	hero_name varchar(20) REFERENCES heroes(hero_name),
+	id_game integer REFERENCES game(id_game),
+	PRIMARY KEY(id_hg)
 );
 
 CREATE TABLE player_on_meeting (
-    id_pm integer,
-    nickname varchar(50) REFERENCES players(nickname),
-    id_meeting integer REFERENCES meeting(id_meeting),
-    PRIMARY KEY(id_pm)
+	id_pm integer,
+	nickname varchar(50) REFERENCES players(nickname),
+	id_meeting integer REFERENCES meeting(id_meeting),
+	PRIMARY KEY(id_pm)
 );
 
 CREATE TABLE meeting_game (
-    id_mg integer,
-    id_meeting integer REFERENCES meeting(id_meeting),
-    id_game integer REFERENCES game(id_game),
-    PRIMARY KEY (id_mg)
+	id_mg integer,
+	id_meeting integer REFERENCES meeting(id_meeting),
+	id_game integer REFERENCES game(id_game),
+	PRIMARY KEY (id_mg)
 );
 
 CREATE TABLE hero_equipment (
-    id_he integer,
-    quantity integer NOT NULL,
-    hero_name varchar(20) REFERENCES heroes(hero_name),
-    id_equipment integer REFERENCES equipment(id_equipment),
-    PRIMARY KEY (id_he)
+	id_he integer,
+	quantity integer NOT NULL,
+	hero_name varchar(20) REFERENCES heroes(hero_name),
+	id_equipment integer REFERENCES equipment(id_equipment),
+	PRIMARY KEY (id_he)
 );
 
+--------database triggers implementation and examples of using---------
 
-INSERT INTO players VALUES(0001, 'Seki', 22, 9408094738);
-INSERT INTO players VALUES(0002, 'Ondrej', 21, 1349408094);
+----trigger for automatical generating of primary key using sequence
+----if new player is inserted, sequence variable is incremented and
+----it's value is going to be value of the new player's primary key
+CREATE SEQUENCE lastID;
+CREATE OR REPLACE TRIGGER incrTrigger
+  BEFORE INSERT ON players
+  FOR EACH ROW
+BEGIN
+  :new.id_player := lastID.nextval;
+END incrTrigger;
+/
+show errors
+ALTER session SET nls_date_format='dd.mm.yyyy';
+
+INSERT INTO players VALUES(NULL, 'Miro', 22, 9401234438);
+INSERT INTO players VALUES(NULL, 'Peto', 22, 9432423567);
+
+SELECT * FROM players;
+
+------------------------------------------
+INSERT INTO players VALUES(NULL, 'Seki', 22, 9408094738);
+INSERT INTO players VALUES(NULL, 'Ondrej', 21, 1349408094);
     
 INSERT INTO heroes VALUES(0001, 'rogue', 'hobbit', 1, 1, 'Bilbo', 'Seki');
 INSERT INTO heroes VALUES(0002, 'warrior', 'human', 1, 1, 'Sauron', 'Ondrej');
@@ -130,77 +152,9 @@ INSERT INTO hero_equipment VALUES(0003, 2, 'Bilbo', 0004);
 INSERT INTO hero_equipment VALUES(0004, 1, 'Sauron', 0003);
 ---------------------END OF PART 2-----------------------
 
-
----------------------PART 3------------------------------
---2x 2 tables
---show all charracters for all players
-SELECT players.nickname, heroes.hero_name
-FROM heroes
-INNER JOIN players ON players.nickname=heroes.player_nickname; 
-
---show player nicknames and game mission they took part in, as well as its location
-SELECT players.nickname, game.mission, game.game_location, game.continent
-FROM players
-INNER JOIN game ON players.nickname=game.author_name; 
-
-------------------------------------------------------
---1x 3 tables
---show heroes with their equipments and quantities
-SELECT heroes.hero_name, equipment.eq_name, hero_equipment.quantity
-FROM equipment
-INNER JOIN hero_equipment
-ON equipment.ID_EQUIPMENT=hero_equipment.id_equipment
-INNER JOIN  heroes
-ON heroes.hero_name=hero_equipment.hero_name;
-
-
-------------------------------------------------------
---2x group by
-
---count how many different heroes own certain weapon
-SELECT eq_name,count(eq_name)  FROM equipment GROUP BY eq_name;
-
---count number of races of heores
-SELECT  race, count(race)  FROM heroes GROUP BY race;
-
-------------------------------------------------------
---1x exists
---show all games info but only if some medium/hard games exist
-SELECT * FROM game WHERE EXISTS(SELECT difficulty FROM game WHERE game.difficulty = 'hard' OR game.difficulty = 'medium');
-
-------------------------------------------------------
---1x WHERE IN
---Show only those heroes who belong to players whose names contain string 'ek'
-SELECT hero_name FROM heroes
-WHERE player_nickname IN
-(SELECT nickname FROM players WHERE  nickname LIKE '%ek%');
-
----------------------END OF PART 3-----------------------
-
-
-
----------------------PART 4------------------------------
-CREATE SEQUENCE lastID;
-CREATE OR REPLACE TRIGGER incrTrigger
-  BEFORE INSERT ON players
-  FOR EACH ROW
-BEGIN
-  :new.id_player := lastID.nextval;
-END incrTrigger;
-/
-show errors
-ALTER session SET nls_date_format='dd.mm.yyyy';
-
-SELECT last_number
-FROM user_sequences
-WHERE sequence_name = 'LASTID';
-
-SELECT * FROM players
-
-DELETE FROM players WHERE nickname='Peto';
-
-select * from user_errors where type = 'TRIGGER'
- 
+----trigger for deleting of killed hero's relations
+----if hero is deleted, he is not able to own any equipment etc.
+----in this case are deleted all his relations with another tables
 CREATE OR REPLACE TRIGGER deleteHeroRelations
   BEFORE DELETE ON heroes
   FOR EACH ROW
@@ -211,10 +165,134 @@ END;
 show errors
 ALTER session SET nls_date_format='dd.mm.yyyy';
 
-DELETE FROM heroes
-WHERE hero_name='Bilbo';
+SELECT * FROM heroes;
+SELECT * FROM hero_equipment;
 
-SELECT * FROM heroes
+DELETE FROM heroes WHERE hero_name='Bilbo';
 
-SELECT * FROM hero_equipment
-  
+SELECT * FROM heroes;
+SELECT * FROM hero_equipment;
+
+--PART 4--
+--do a query which  will be compared, 
+EXPLAIN PLAN FOR
+SELECT players.nickname, heroes.race, count(heroes.race)
+FROM players
+NATURAL JOIN heroes
+WHERE players.nickname LIKE '%dre%' AND players.nickname = heroes.player_nickname
+GROUP BY (heroes.race, players.nickname);
+SELECT * FROM TABLE(DBMS_XPLAN.display);
+
+--create index on columns that matter
+CREATE INDEX idx1 ON heroes(race, player_nickname);
+
+--show results with indexed columns, to compare the results
+EXPLAIN PLAN FOR
+SELECT players.nickname, heroes.race, count(heroes.race)
+FROM players
+NATURAL JOIN heroes
+WHERE players.nickname LIKE '%dre%' AND players.nickname = heroes.player_nickname
+GROUP BY (heroes.race, players.nickname);
+SELECT * FROM TABLE(DBMS_XPLAN.display);
+
+--server output on
+set serveroutput on
+------------------------
+--PROCEDURE FINDS PERCENTAGE OF HERO RACES GIVEN IN THE ARG FROM TOTAL
+------------------------
+CREATE OR REPLACE PROCEDURE racePercent(race IN VARCHAR2) AS
+  CURSOR emp_cursor IS SELECT * FROM heroes;
+  e_c heroes%ROWTYPE;
+  allraces NUMBER;
+  thisrace NUMBER;
+  BEGIN
+    allraces := 0;
+    thisrace := 0;
+   OPEN emp_cursor;
+      loop
+        fetch emp_cursor into e_c;
+          allraces := allraces + 1;
+          exit when emp_cursor%NOTFOUND;
+          if (e_c.race = race) then thisrace := thisrace + 1;
+          end if;
+      end loop;
+      DBMS_OUTPUT.PUT_LINE('Race '||race||' means '||thisrace / allraces * 100||'% of the whole population. There are/is '||thisrace||' of them.');
+    CLOSE emp_cursor;
+    
+    EXCEPTION
+  WHEN ZERO_DIVIDE THEN --ak ziadne rasy neboli vytvorene
+    dbms_output.put_line('Ziadne rasy neexistuju');
+  WHEN OTHERS THEN --ina vynimka
+    Raise_Application_Error (20555, 'Else exception!');
+    
+ END racePercent;
+/
+-----------------------
+---PROCEDURE WHICH FINDS IF A HERO IS A TOTAL BEGINNER
+------------------------
+CREATE OR REPLACE PROCEDURE absolutelyNew AS
+  CURSOR h_cursor IS SELECT * FROM heroes
+  NATURAL JOIN hero_equipment
+  NATURAL JOIN equipment;
+  e_c h_cursor%ROWTYPE;
+  hcount NUMBER;
+  BEGIN
+  hcount := 0;
+   OPEN h_cursor;
+      loop
+        fetch h_cursor into e_c;
+          exit when h_cursor%NOTFOUND;
+          hcount := hcount + 1;
+          if(e_c.levelnumber = 1) then 
+            DBMS_OUTPUT.PUT_LINE('the hero'|| e_c.hero_name||' is a beginner and needs help');
+          end if;
+
+      end loop;
+      if(hcount = 0) then
+        DBMS_OUTPUT.PUT_LINE('there are no heroes at level 1');
+      end if;
+    CLOSE h_cursor;
+    
+ END absolutelyNew;
+/
+
+
+exec racePercent('hobbit');
+exec absolutelyNew;
+
+-------access rights definition-------
+GRANT ALL ON players TO xkisel02;
+GRANT ALL ON equipment TO xkisel02;
+GRANT ALL ON game TO xkisel02;
+GRANT ALL ON hero_equipment TO xkisel02;
+GRANT ALL ON hero_game TO xkisel02;
+GRANT ALL ON meeting TO xkisel02;
+GRANT ALL ON heroes TO xkisel02;
+GRANT ALL ON meeting_game TO xkisel02;
+GRANT ALL ON player_on_meeting TO xkisel02;
+
+GRANT EXECUTE ON racePercent TO xkisel02;
+GRANT EXECUTE ON absolutelyNew TO xkisel02;
+
+----------materialized view on the table "heroes"----------
+DROP MATERIALIZED VIEW Hheroes;
+
+CREATE MATERIALIZED VIEW LOG ON heroes WITH PRIMARY KEY;
+
+CREATE MATERIALIZED VIEW Hheroes
+  CACHE
+  BUILD IMMEDIATE
+  REFRESH FAST ON COMMIT
+  ENABLE QUERY REWRITE
+  AS SELECT h.*
+  FROM heroes h;
+   
+GRANT ALL ON Hheroes TO xkisel02;
+
+SELECT * FROM Hheroes;
+
+DELETE FROM Hheroes WHERE hero_name='Gimli';
+
+SELECT * FROM Hheroes;
+
+
